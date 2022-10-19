@@ -1,5 +1,7 @@
 package pages;
 
+import java.sql.*;
+import java.sql.Connection;
 import javax.swing.*;
 
 import components.Frame;
@@ -23,11 +25,23 @@ public class Authentication extends Frame {
 
     JCheckBox rememberMe;
 
+    Connection connection;
+
     public Authentication() {
         setup();
     }
 
     private void setup() {
+        String dbUrl = "jdbc:mysql://localhost:3306/mwanzo_baraka";
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            connection = DriverManager.getConnection(dbUrl, "root",
+                    "kibzrael");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
         JPanel panel = new Panel();
         panel.setLayout(new GridLayout(1, 2, 50, 0));
 
@@ -71,6 +85,7 @@ public class Authentication extends Frame {
         rememberMe.setFont(new Font("Serif", Font.PLAIN, 18));
         rememberMe.setBounds(350, 370, 200, 20);
         rememberMe.setOpaque(false);
+        rememberMe.setFocusable(false);
         // Button
         loginButton = new JButton("Login");
         loginButton.setBackground(new Color(232, 113, 33));
@@ -90,7 +105,7 @@ public class Authentication extends Frame {
         // Toggle
         toggleLabel = new JButton("Don't have an account? Register");
         toggleLabel.setFont(new Font("Serif", Font.ITALIC, 18));
-        toggleLabel.setBounds(50, 520, 500, 20);
+        toggleLabel.setBounds(50, 510, 500, 40);
         toggleLabel.setBackground(null);
         toggleLabel.setBorder(null);
         toggleLabel.setHorizontalAlignment(SwingConstants.CENTER);
@@ -114,7 +129,6 @@ public class Authentication extends Frame {
         panel.add(formPanel);
 
         this.add(panel);
-        setVisible(true);
     }
 
     private void toggle() {
@@ -135,10 +149,26 @@ public class Authentication extends Frame {
 
     private void login() {
         // Implement Login
+        String sql = "select from users(email, password) where email = ? and password = ?";
+        try {
+            PreparedStatement statement = connection.prepareStatement(sql);
+            statement.setString(1, emailField.getText());
+            statement.setString(2, passwordField.getText());
+            ResultSet result = statement.executeQuery();
+
+        } catch (SQLException e1) {
+            // TODO Auto-generated catch block
+            e1.printStackTrace();
+        }
     }
 
     private void register() {
         // Implement Register
+        String email = emailField.getText();
+        String password = passwordField.getText();
+        JFrame registerFrame = new Register(email, password);
+        registerFrame.setVisible(true);
+        this.dispose();
     }
 
 }

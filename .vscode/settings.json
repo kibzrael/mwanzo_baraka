@@ -1,4 +1,9 @@
 {
   "editor.defaultFormatter": "redhat.java",
-  "editor.formatOnSave": true
+  "editor.formatOnSave": true,
+  "java.project.referencedLibraries": [
+    "lib/**/*.jar",
+    "/usr/share/java/mysql-connector-j-8.0.31.jar",
+    "mysql-connector-j-8.0.31.jar"
+  ]
 }
