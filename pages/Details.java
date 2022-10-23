@@ -1,6 +1,8 @@
 package pages;
 
 import java.sql.*;
+import java.util.Enumeration;
+
 import javax.swing.*;
 
 import components.Frame;
@@ -18,13 +20,16 @@ public class Details extends Frame {
 
     JTextField memberField;
     JTextField phoneField;
+    String gender;
 
     String email;
     String password;
+    Boolean group;
 
-    public Details(String em, String pass) {
+    public Details(String em, String pass, Boolean gr) {
         email = em;
         password = pass;
+        group = gr;
         setup();
     }
 
@@ -89,29 +94,43 @@ public class Details extends Frame {
         ButtonGroup buttonGroup = new ButtonGroup();
         buttonGroup.add(male);
         buttonGroup.add(female);
+        for (Enumeration<AbstractButton> buttons = buttonGroup.getElements(); buttons.hasMoreElements();) {
+            AbstractButton button = buttons.nextElement();
+            if (button.isSelected()) {
+                gender = button.getText();
+
+            }
+        }
         // Button
         JButton submitButton = new JButton("Submit");
         submitButton.setBackground(new Color(232, 113, 33));
         submitButton.setBorder(null);
         submitButton.setForeground(Color.WHITE);
         submitButton.setFont(new Font("Serif", Font.BOLD, 18));
-        submitButton.setBounds(0, 490, 500, 60);
+        submitButton.setBounds(0, 490, 200, 60);
+        JButton addButton = new JButton("Add member");
+        addButton.setBackground(new Color(232, 113, 33));
+        addButton.setBorder(null);
+        addButton.setForeground(Color.WHITE);
+        addButton.setFont(new Font("Serif", Font.BOLD, 18));
+        addButton.setBounds(250, 490, 200, 60);
         submitButton.addActionListener(new ActionListener() {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                String sql = "insert into users(email, password, name, phone) values (?,?,?,?)";
-                try {
-                    PreparedStatement statement = connection.prepareStatement(sql);
-                    statement.setString(1, email);
-                    statement.setString(2, password);
-                    statement.setString(3, memberField.getText());
-                    statement.setString(4, phoneField.getText());
-                    statement.executeUpdate();
-                } catch (SQLException e1) {
-                    // TODO Auto-generated catch block
-                    e1.printStackTrace();
-                }
+                insert();
+                home();
+            }
+
+        });
+        addButton.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                insert();
+                memberField.setText("");
+                phoneField.setText("");
+                buttonGroup.getSelection();
             }
 
         });
@@ -129,5 +148,26 @@ public class Details extends Frame {
         panel.add(registerPanel);
 
         this.add(panel);
+    }
+
+    private void insert() {
+        String sql = "insert into users(email, password, name, phone, gender) values (?,?,?,?,?)";
+        try {
+            PreparedStatement statement = connection.prepareStatement(sql);
+            statement.setString(1, email);
+            statement.setString(2, password);
+            statement.setString(3, memberField.getText());
+            statement.setString(4, phoneField.getText());
+            statement.setString(5, gender);
+            statement.executeUpdate();
+        } catch (SQLException e1) {
+            e1.printStackTrace();
+        }
+    }
+
+    private void home() {
+        JFrame home = new Home();
+        home.setVisible(true);
+        this.dispose();
     }
 }

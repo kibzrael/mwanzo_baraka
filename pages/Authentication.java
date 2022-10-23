@@ -23,6 +23,8 @@ public class Authentication extends Frame {
     JButton loginButton;
     JButton toggleLabel;
 
+    JLabel error;
+
     JCheckBox rememberMe;
 
     Connection connection;
@@ -115,6 +117,10 @@ public class Authentication extends Frame {
                 toggle();
             }
         });
+        error = new JLabel("");
+        error.setFont(new Font("Serif", Font.PLAIN, 21));
+        error.setForeground(Color.red);
+        error.setBounds(50, 550, 500, 20);
 
         formPanel.add(title);
         formPanel.add(emailLabel);
@@ -149,13 +155,21 @@ public class Authentication extends Frame {
 
     private void login() {
         // Implement Login
-        String sql = "select from users(email, password) where email = ? and password = ?";
+        String sql = "select * from users where email=? and password=?";
         try {
             PreparedStatement statement = connection.prepareStatement(sql);
             statement.setString(1, emailField.getText());
             statement.setString(2, passwordField.getText());
             ResultSet result = statement.executeQuery();
-
+            if (result.next()) {
+                // Correct password
+                JFrame home = new Home();
+                home.setVisible(true);
+                this.dispose();
+            } else {
+                // Incorrect password
+                error.setText("Wrong email/password.");
+            }
         } catch (SQLException e1) {
             // TODO Auto-generated catch block
             e1.printStackTrace();

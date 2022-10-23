@@ -8,6 +8,7 @@ import components.Panel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Enumeration;
 
 import javax.swing.border.EmptyBorder;
 
@@ -21,6 +22,7 @@ public class Register extends Frame {
 
     String email;
     String password;
+    String type;
 
     public Register(String em, String pass) {
         email = em;
@@ -59,6 +61,20 @@ public class Register extends Frame {
         ButtonGroup buttonGroup = new ButtonGroup();
         buttonGroup.add(individual);
         buttonGroup.add(group);
+        for (Enumeration<AbstractButton> buttons = buttonGroup.getElements(); buttons.hasMoreElements();) {
+            AbstractButton button = buttons.nextElement();
+            if (button.isSelected()) {
+                type = button.getText();
+                if (type == "Group") {
+                    amount = "5000";
+
+                } else if (type == "Individual") {
+                    amount = "2000";
+                }
+                regFee = new JLabel("Ksh. " + amount);
+
+            }
+        }
         // Members
         JLabel membersLabel = new JLabel("Group Name");
         membersLabel.setFont(new Font("Serif", Font.BOLD, 24));
@@ -108,7 +124,7 @@ public class Register extends Frame {
     }
 
     private void details() {
-        JFrame details = new Details(email, password);
+        JFrame details = new Details(email, password, type == "Group");
         details.setVisible(true);
         this.dispose();
     }
