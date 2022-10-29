@@ -26,7 +26,7 @@ public class Details extends Frame {
     String password;
     Boolean group;
 
-    public Details(String em, String pass, Boolean gr) {
+    public Details(String em, String pass, Boolean gr, String name) {
         email = em;
         password = pass;
         group = gr;
@@ -54,8 +54,8 @@ public class Details extends Frame {
         panel.add(logo);
 
         // Form
-        JPanel registerPanel = new Panel();
-        registerPanel.setLayout(null);
+        JPanel detailsPanel = new Panel();
+        detailsPanel.setLayout(null);
 
         // Members
         JLabel membersLabel = new JLabel("Member Name");
@@ -96,10 +96,18 @@ public class Details extends Frame {
         buttonGroup.add(female);
         for (Enumeration<AbstractButton> buttons = buttonGroup.getElements(); buttons.hasMoreElements();) {
             AbstractButton button = buttons.nextElement();
-            if (button.isSelected()) {
-                gender = button.getText();
+            button.addActionListener(new ActionListener() {
 
-            }
+                @Override
+                public void actionPerformed(ActionEvent arg0) {
+                    if (button.isSelected()) {
+                        gender = button.getText();
+                        System.out.println(gender);
+
+                    }
+                }
+            });
+
         }
         // Button
         JButton submitButton = new JButton("Submit");
@@ -118,8 +126,8 @@ public class Details extends Frame {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                insert();
                 home();
+                insert();
             }
 
         });
@@ -127,25 +135,28 @@ public class Details extends Frame {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                insert();
                 memberField.setText("");
                 phoneField.setText("");
-                buttonGroup.getSelection();
+                buttonGroup.clearSelection();
+                insert();
             }
 
         });
 
-        registerPanel.add(membersLabel);
-        registerPanel.add(memberField);
-        registerPanel.add(phoneLabel);
-        registerPanel.add(phoneField);
-        registerPanel.add(genderLabel);
-        registerPanel.add(male);
-        registerPanel.add(female);
-        registerPanel.add(submitButton);
+        detailsPanel.add(membersLabel);
+        detailsPanel.add(memberField);
+        detailsPanel.add(phoneLabel);
+        detailsPanel.add(phoneField);
+        detailsPanel.add(genderLabel);
+        detailsPanel.add(male);
+        detailsPanel.add(female);
+        detailsPanel.add(submitButton);
+        if (group) {
+            detailsPanel.add(addButton);
+        }
 
         panel.setBorder(new EmptyBorder(75, 0, 75, 0));
-        panel.add(registerPanel);
+        panel.add(detailsPanel);
 
         this.add(panel);
     }

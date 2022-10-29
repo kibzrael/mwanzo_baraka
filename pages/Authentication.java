@@ -121,6 +121,7 @@ public class Authentication extends Frame {
         error.setFont(new Font("Serif", Font.PLAIN, 21));
         error.setForeground(Color.red);
         error.setBounds(50, 550, 500, 20);
+        error.setHorizontalAlignment(SwingConstants.CENTER);
 
         formPanel.add(title);
         formPanel.add(emailLabel);
@@ -130,6 +131,7 @@ public class Authentication extends Frame {
         formPanel.add(rememberMe);
         formPanel.add(loginButton);
         formPanel.add(toggleLabel);
+        formPanel.add(error);
 
         panel.setBorder(new EmptyBorder(75, 0, 75, 0));
         panel.add(formPanel);

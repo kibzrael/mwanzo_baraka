@@ -1,6 +1,7 @@
 import javax.swing.*;
 
 import pages.Authentication;
+import pages.Home;
 
 public class Baraka {
 
@@ -13,7 +14,7 @@ public class Baraka {
             // Open Home
         } else {
             // Open Login Page
-            JFrame frame = new Authentication();
+            JFrame frame = new Home();
             // JFrame frame = new Register();
             frame.setVisible(true);
         }
