@@ -11,7 +11,7 @@ public class Button extends JButton {
         this.setBorder(null);
         this.setForeground(Color.WHITE);
         this.setFont(new Font("Serif", Font.BOLD, 18));
-        System.out.println("Button");
+        this.setText(text);
     }
 
 }

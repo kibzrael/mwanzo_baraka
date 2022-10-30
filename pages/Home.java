@@ -4,6 +4,7 @@ import javax.swing.*;
 
 import components.Frame;
 import components.Panel;
+import components.Button;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -38,11 +39,7 @@ public class Home extends Frame {
         titleLabel.setHorizontalAlignment(JLabel.CENTER);
         titleLabel.setBounds(0, 0, 500, 50);
         // Button
-        JButton contributionButton = new JButton("Make Contribution");
-        contributionButton.setBackground(new Color(232, 113, 33));
-        contributionButton.setBorder(null);
-        contributionButton.setForeground(Color.WHITE);
-        contributionButton.setFont(new Font("Serif", Font.BOLD, 18));
+        JButton contributionButton = new Button("Make Contribution");
         contributionButton.setBounds(0, 100, 500, 60);
         contributionButton.addActionListener(new ActionListener() {
 
@@ -53,30 +50,42 @@ public class Home extends Frame {
 
         });
 
-        JButton takeLoanButton = new JButton("Take Loan");
-        takeLoanButton.setBackground(new Color(232, 113, 33));
-        takeLoanButton.setBorder(null);
-        takeLoanButton.setForeground(Color.WHITE);
-        takeLoanButton.setFont(new Font("Serif", Font.BOLD, 18));
-        takeLoanButton.setBounds(0, 200, 500, 60);
+        JButton issueLoanButton = new Button("Issue Loan");
+        issueLoanButton.setBounds(0, 200, 500, 60);
+        issueLoanButton.addActionListener(new ActionListener() {
 
-        JButton payLoanButton = new JButton("Repay Loan");
-        payLoanButton.setBackground(new Color(232, 113, 33));
-        payLoanButton.setBorder(null);
-        payLoanButton.setForeground(Color.WHITE);
-        payLoanButton.setFont(new Font("Serif", Font.BOLD, 18));
+            @Override
+            public void actionPerformed(ActionEvent arg0) {
+                issueLoan();
+            }
+
+        });
+
+        JButton payLoanButton = new Button("Loan Repayment");
         payLoanButton.setBounds(0, 300, 500, 60);
+        payLoanButton.addActionListener(new ActionListener() {
 
-        JButton reportsButton = new JButton("View Reports");
-        reportsButton.setBackground(new Color(232, 113, 33));
-        reportsButton.setBorder(null);
-        reportsButton.setForeground(Color.WHITE);
-        reportsButton.setFont(new Font("Serif", Font.BOLD, 18));
+            @Override
+            public void actionPerformed(ActionEvent arg0) {
+                loanRepayment();
+            }
+
+        });
+
+        JButton reportsButton = new Button("View Reports");
         reportsButton.setBounds(0, 400, 500, 60);
+        reportsButton.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent arg0) {
+                reports();
+            }
+
+        });
 
         homePanel.add(titleLabel);
         homePanel.add(contributionButton);
-        homePanel.add(takeLoanButton);
+        homePanel.add(issueLoanButton);
         homePanel.add(payLoanButton);
         homePanel.add(reportsButton);
 
@@ -87,8 +96,26 @@ public class Home extends Frame {
     }
 
     private void contribution() {
-        JFrame MakeContribution = new MakeContribution();
-        MakeContribution.setVisible(true);
+        JFrame frame = new MakeContribution(this);
+        frame.setVisible(true);
+        this.dispose();
+    }
+
+    private void issueLoan() {
+        JFrame frame = new IssueLoan(this);
+        frame.setVisible(true);
+        this.dispose();
+    }
+
+    private void loanRepayment() {
+        JFrame frame = new LoanRepayment(this);
+        frame.setVisible(true);
+        this.dispose();
+    }
+
+    private void reports() {
+        JFrame frame = new Reports(this);
+        frame.setVisible(true);
         this.dispose();
     }
 }

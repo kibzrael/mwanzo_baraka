@@ -13,14 +13,16 @@ import components.CloseableFrame;
 import components.Panel;
 import components.Button;
 
-public class MakeContribution extends CloseableFrame {
+public class LoanRepayment extends CloseableFrame {
 
     Connection connection;
 
     JComboBox<String> memberSelector;
-    JTextField amountField;
+    JLabel amountLabel;
+    JLabel installmentLabel;
+    JLabel penaltyLabel;
 
-    public MakeContribution(JFrame back) {
+    public LoanRepayment(JFrame back) {
         super(back);
         setup();
     }
@@ -46,18 +48,18 @@ public class MakeContribution extends CloseableFrame {
         panel.add(logo);
 
         // Form
-        JPanel contributionPanel = new Panel();
-        contributionPanel.setLayout(null);
+        JPanel repaymentPanel = new Panel();
+        repaymentPanel.setLayout(null);
 
         // Members
-        JLabel title = new JLabel("Contributions");
+        JLabel title = new JLabel("Loan Repayment");
         title.setFont(new Font("Serif", Font.BOLD, 36));
         title.setBounds(0, 50, 500, 60);
         title.setHorizontalAlignment(SwingConstants.CENTER);
 
         String members[] = { "23343", "34545", "34545" };
 
-        JLabel membersLabel = new JLabel("Member National ID");
+        JLabel membersLabel = new JLabel("Member/Group ID");
         membersLabel.setFont(new Font("Serif", Font.BOLD, 24));
         membersLabel.setBounds(0, 150, 600, 30);
         memberSelector = new JComboBox<String>(members);
@@ -65,16 +67,20 @@ public class MakeContribution extends CloseableFrame {
         memberSelector.setBackground(Color.white);
         memberSelector.setBounds(0, 200, 500, 50);
 
+        // installment
+        installmentLabel = new JLabel("Installment: Due on: ");
+        installmentLabel.setFont(new Font("Serif", Font.PLAIN, 24));
+        installmentLabel.setBounds(0, 270, 600, 30);
+
         // Amount
-        JLabel amountLabel = new JLabel("Amount");
-        amountLabel.setFont(new Font("Serif", Font.BOLD, 24));
-        amountLabel.setBounds(0, 270, 600, 30);
-        amountField = new JTextField(40);
-        amountField.setBorder(BorderFactory.createCompoundBorder(
-                amountField.getBorder(),
-                BorderFactory.createEmptyBorder(5, 15, 5, 15)));
-        amountField.setFont(new Font("Serif", Font.PLAIN, 18));
-        amountField.setBounds(0, 320, 500, 50);
+        amountLabel = new JLabel("Amount: ");
+        amountLabel.setFont(new Font("Serif", Font.PLAIN, 24));
+        amountLabel.setBounds(0, 320, 600, 30);
+
+        // penalty
+        penaltyLabel = new JLabel("<html>Penalty: <b>N/A</b></html>");
+        penaltyLabel.setFont(new Font("Serif", Font.PLAIN, 24));
+        penaltyLabel.setBounds(0, 370, 600, 30);
 
         JButton confirmButton = new Button("Confirm Payment");
         confirmButton.setBackground(new Color(232, 113, 33));
@@ -86,15 +92,16 @@ public class MakeContribution extends CloseableFrame {
                 close();
             }
         });
-        contributionPanel.add(title);
-        contributionPanel.add(membersLabel);
-        contributionPanel.add(memberSelector);
-        contributionPanel.add(amountLabel);
-        contributionPanel.add(amountField);
-        contributionPanel.add(confirmButton);
+        repaymentPanel.add(title);
+        repaymentPanel.add(membersLabel);
+        repaymentPanel.add(memberSelector);
+        repaymentPanel.add(installmentLabel);
+        repaymentPanel.add(amountLabel);
+        repaymentPanel.add(penaltyLabel);
+        repaymentPanel.add(confirmButton);
 
         panel.setBorder(new EmptyBorder(75, 0, 75, 0));
-        panel.add(contributionPanel);
+        panel.add(repaymentPanel);
 
         this.add(panel);
     }

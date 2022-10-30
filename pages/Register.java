@@ -4,6 +4,7 @@ import javax.swing.*;
 
 import components.Frame;
 import components.Panel;
+import components.Button;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -104,11 +105,8 @@ public class Register extends Frame {
         regFee.setFont(new Font("Serif", Font.BOLD, 24));
         regFee.setBounds(250, 350, 200, 30);
         // Button
-        JButton confirmButton = new JButton("Confirm Payment");
+        JButton confirmButton = new Button("Confirm Payment");
         confirmButton.setBackground(new Color(232, 113, 33));
-        confirmButton.setBorder(null);
-        confirmButton.setForeground(Color.WHITE);
-        confirmButton.setFont(new Font("Serif", Font.BOLD, 18));
         confirmButton.setBounds(0, 430, 500, 60);
         confirmButton.addActionListener(new ActionListener() {
 

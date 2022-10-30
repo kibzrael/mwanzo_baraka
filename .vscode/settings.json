@@ -3,6 +3,6 @@
   "editor.formatOnSave": true,
   "java.project.referencedLibraries": [
     "lib/**/*.jar",
-    "/home/kibzrael/Downloads/mysql-connector-java-8.0.30.jar"
+    "/usr/share/java/mysql-connector-j-8.0.31.jar"
   ]
 }

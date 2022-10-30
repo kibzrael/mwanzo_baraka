@@ -4,6 +4,7 @@ import java.sql.*;
 import java.sql.Connection;
 import javax.swing.*;
 
+import components.Button;
 import components.Frame;
 import components.Panel;
 
@@ -59,42 +60,38 @@ public class Authentication extends Frame {
         // Title
         title = new JLabel("Welcome Back");
         title.setFont(new Font("Serif", Font.BOLD, 48));
-        title.setBounds(0, 50, 600, 60);
+        title.setBounds(0, 50, 500, 60);
         title.setHorizontalAlignment(SwingConstants.CENTER);
         // Email
         JLabel emailLabel = new JLabel("Email");
         emailLabel.setFont(new Font("Serif", Font.BOLD, 21));
-        emailLabel.setBounds(50, 170, 500, 20);
+        emailLabel.setBounds(0, 170, 500, 20);
 
         emailField = new JTextField(40);
         emailField.setBorder(BorderFactory.createCompoundBorder(
                 emailField.getBorder(),
                 BorderFactory.createEmptyBorder(5, 15, 5, 15)));
         emailField.setFont(new Font("Serif", Font.PLAIN, 18));
-        emailField.setBounds(50, 200, 500, 50);
+        emailField.setBounds(0, 200, 500, 50);
         // Password
         JLabel passwordLabel = new JLabel("Password");
         passwordLabel.setFont(new Font("Serif", Font.BOLD, 21));
-        passwordLabel.setBounds(50, 270, 500, 20);
+        passwordLabel.setBounds(0, 270, 500, 20);
         passwordField = new JTextField(40);
         passwordField.setBorder(BorderFactory.createCompoundBorder(
                 passwordField.getBorder(),
                 BorderFactory.createEmptyBorder(5, 15, 5, 15)));
         passwordField.setFont(new Font("Serif", Font.PLAIN, 18));
-        passwordField.setBounds(50, 300, 500, 50);
+        passwordField.setBounds(0, 300, 500, 50);
         // Remember Me
         rememberMe = new JCheckBox("Keep me logged in");
         rememberMe.setFont(new Font("Serif", Font.PLAIN, 18));
-        rememberMe.setBounds(350, 370, 200, 20);
+        rememberMe.setBounds(300, 370, 200, 20);
         rememberMe.setOpaque(false);
         rememberMe.setFocusable(false);
         // Button
-        loginButton = new JButton("Login");
-        loginButton.setBackground(new Color(232, 113, 33));
-        loginButton.setBorder(null);
-        loginButton.setForeground(Color.WHITE);
-        loginButton.setFont(new Font("Serif", Font.BOLD, 18));
-        loginButton.setBounds(50, 430, 500, 60);
+        loginButton = new Button("Login");
+        loginButton.setBounds(0, 430, 500, 60);
         loginButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -105,11 +102,10 @@ public class Authentication extends Frame {
             }
         });
         // Toggle
-        toggleLabel = new JButton("Don't have an account? Register");
-        toggleLabel.setFont(new Font("Serif", Font.ITALIC, 18));
-        toggleLabel.setBounds(50, 510, 500, 40);
+        toggleLabel = new Button("Don't have an account? Register");
+        toggleLabel.setBounds(0, 510, 500, 40);
         toggleLabel.setBackground(null);
-        toggleLabel.setBorder(null);
+        toggleLabel.setForeground(Color.BLACK);
         toggleLabel.setHorizontalAlignment(SwingConstants.CENTER);
         toggleLabel.addActionListener(new ActionListener() {
             @Override
@@ -120,7 +116,7 @@ public class Authentication extends Frame {
         error = new JLabel("");
         error.setFont(new Font("Serif", Font.PLAIN, 21));
         error.setForeground(Color.red);
-        error.setBounds(50, 550, 500, 20);
+        error.setBounds(0, 550, 500, 20);
         error.setHorizontalAlignment(SwingConstants.CENTER);
 
         formPanel.add(title);
@@ -133,7 +129,7 @@ public class Authentication extends Frame {
         formPanel.add(toggleLabel);
         formPanel.add(error);
 
-        panel.setBorder(new EmptyBorder(75, 0, 75, 0));
+        panel.setBorder(new EmptyBorder(20, 0, 20, 0));
         panel.add(formPanel);
 
         this.add(panel);
@@ -173,7 +169,6 @@ public class Authentication extends Frame {
                 error.setText("Wrong email/password.");
             }
         } catch (SQLException e1) {
-            // TODO Auto-generated catch block
             e1.printStackTrace();
         }
     }

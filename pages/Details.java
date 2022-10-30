@@ -7,6 +7,7 @@ import javax.swing.*;
 
 import components.Frame;
 import components.Panel;
+import components.Button;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -110,17 +111,9 @@ public class Details extends Frame {
 
         }
         // Button
-        JButton submitButton = new JButton("Submit");
-        submitButton.setBackground(new Color(232, 113, 33));
-        submitButton.setBorder(null);
-        submitButton.setForeground(Color.WHITE);
-        submitButton.setFont(new Font("Serif", Font.BOLD, 18));
+        JButton submitButton = new Button("Submit");
         submitButton.setBounds(0, 490, 200, 60);
-        JButton addButton = new JButton("Add member");
-        addButton.setBackground(new Color(232, 113, 33));
-        addButton.setBorder(null);
-        addButton.setForeground(Color.WHITE);
-        addButton.setFont(new Font("Serif", Font.BOLD, 18));
+        JButton addButton = new Button("Add member");
         addButton.setBounds(250, 490, 200, 60);
         submitButton.addActionListener(new ActionListener() {
 
