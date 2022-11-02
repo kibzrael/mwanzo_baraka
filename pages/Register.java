@@ -2,38 +2,50 @@ package pages;
 
 import javax.swing.*;
 
-import components.Frame;
 import components.Panel;
 import components.Button;
+import components.CloseableFrame;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.sql.*;
 import java.util.Enumeration;
 
 import javax.swing.border.EmptyBorder;
 
-public class Register extends Frame {
+public class Register extends CloseableFrame {
+
+    Connection connection;
 
     JLabel regFee;
 
     String amount = "2000";
 
-    JTextField memberField;
+    JTextField groupField;
 
-    String email;
-    String password;
     String type;
 
-    JLabel membersLabel;
+    JLabel groupLabel;
 
-    public Register(String em, String pass) {
-        email = em;
-        password = pass;
+    JLabel error;
+
+    public Register(JFrame back) {
+        super(back);
         setup();
     }
 
     private void setup() {
+        String dbUrl = "jdbc:mysql://localhost:3306/mwanzo_baraka";
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            connection = DriverManager.getConnection(dbUrl, "root",
+                    "kibzrael");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
 
         JPanel panel = new Panel();
         panel.setLayout(new GridLayout(1, 2, 50, 0));
@@ -74,11 +86,11 @@ public class Register extends Frame {
                         type = button.getText();
                         if (type == "Group") {
                             amount = "5000";
-                            memberField.setEnabled(true);
+                            groupField.setEnabled(true);
 
                         } else if (type == "Individual") {
                             amount = "2000";
-                            memberField.setEnabled(false);
+                            groupField.setEnabled(false);
                         }
                         regFee.setText("Ksh. " + amount);
 
@@ -87,16 +99,16 @@ public class Register extends Frame {
             });
 
         }
-        // Members
-        membersLabel = new JLabel("Group Name");
-        membersLabel.setFont(new Font("Serif", Font.BOLD, 24));
-        membersLabel.setBounds(0, 200, 600, 30);
-        memberField = new JTextField(40);
-        memberField.setBorder(BorderFactory.createCompoundBorder(
-                memberField.getBorder(),
+
+        groupLabel = new JLabel("Group Name");
+        groupLabel.setFont(new Font("Serif", Font.BOLD, 24));
+        groupLabel.setBounds(0, 200, 600, 30);
+        groupField = new JTextField(40);
+        groupField.setBorder(BorderFactory.createCompoundBorder(
+                groupField.getBorder(),
                 BorderFactory.createEmptyBorder(5, 15, 5, 15)));
-        memberField.setFont(new Font("Serif", Font.PLAIN, 18));
-        memberField.setBounds(0, 250, 500, 50);
+        groupField.setFont(new Font("Serif", Font.PLAIN, 18));
+        groupField.setBounds(0, 250, 500, 50);
         // Registration fee
         JLabel regFeeLabel = new JLabel("Registration Fee:");
         regFeeLabel.setFont(new Font("Serif", Font.PLAIN, 24));
@@ -116,15 +128,21 @@ public class Register extends Frame {
 
             }
         });
+        error = new JLabel("");
+        error.setFont(new Font("Serif", Font.PLAIN, 21));
+        error.setForeground(Color.red);
+        error.setBounds(0, 510, 500, 20);
+        error.setHorizontalAlignment(SwingConstants.CENTER);
 
         registerPanel.add(membershipLabel);
         registerPanel.add(group);
         registerPanel.add(individual);
-        registerPanel.add(membersLabel);
-        registerPanel.add(memberField);
+        registerPanel.add(groupLabel);
+        registerPanel.add(groupField);
         registerPanel.add(regFeeLabel);
         registerPanel.add(regFee);
         registerPanel.add(confirmButton);
+        registerPanel.add(error);
 
         panel.setBorder(new EmptyBorder(75, 0, 75, 0));
         panel.add(registerPanel);
@@ -133,7 +151,30 @@ public class Register extends Frame {
     }
 
     private void details() {
-        JFrame details = new Details(email, password, type == "Group", memberField.getText());
+        if (type == null || groupField.getText() == "") {
+            error.setText("Please complete the form");
+            return;
+        }
+        if (type == "Group") {
+            String sql = "INSERT INTO member_groups (name, reg_fee) VALUES (?, ?)";
+            try {
+                PreparedStatement statement = connection.prepareStatement(sql);
+                statement.setString(1, groupField.getText());
+                statement.setInt(2, Integer.parseInt(amount));
+                statement.executeUpdate();
+            } catch (SQLIntegrityConstraintViolationException e) {
+                error.setText("Group Name is already taken");
+                return;
+            }
+
+            catch (SQLException e1) {
+                e1.printStackTrace();
+            } catch (java.lang.NullPointerException e) {
+            }
+        }
+        // TODO: Ensure group name is unique
+
+        JFrame details = new Details(type == "Group", groupField.getText());
         details.setVisible(true);
         this.dispose();
     }

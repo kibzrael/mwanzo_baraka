@@ -177,8 +177,8 @@ public class Authentication extends Frame {
         // Implement Register
         String email = emailField.getText();
         String password = passwordField.getText();
-        JFrame registerFrame = new Register(email, password);
-        registerFrame.setVisible(true);
+        // JFrame registerFrame = new Register(email, password);
+        // registerFrame.setVisible(true);
         this.dispose();
     }
 

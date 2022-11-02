@@ -1,6 +1,5 @@
 import javax.swing.*;
 
-import pages.Authentication;
 import pages.Home;
 
 public class Baraka {

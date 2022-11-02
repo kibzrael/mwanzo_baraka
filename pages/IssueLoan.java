@@ -1,6 +1,9 @@
 package pages;
 
 import java.sql.*;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Arrays;
 import java.util.stream.IntStream;
 
@@ -20,10 +23,16 @@ public class IssueLoan extends CloseableFrame {
     Connection connection;
 
     JComboBox<String> memberSelector;
+    String[] members;
+    String[] groups = {};
+
     JComboBox<String> periodSelector;
+    int[] years;
     JTextField amountField;
 
-    int maxPeriod = 3;
+    JLabel error;
+
+    int maxPeriod = 5;
 
     public IssueLoan(JFrame back) {
         super(back);
@@ -51,8 +60,8 @@ public class IssueLoan extends CloseableFrame {
         panel.add(logo);
 
         // Form
-        JPanel contributionPanel = new Panel();
-        contributionPanel.setLayout(null);
+        JPanel issueLoanPanel = new Panel();
+        issueLoanPanel.setLayout(null);
 
         // Members
         JLabel title = new JLabel("Loan");
@@ -60,9 +69,9 @@ public class IssueLoan extends CloseableFrame {
         title.setBounds(0, 0, 500, 60);
         title.setHorizontalAlignment(SwingConstants.CENTER);
 
-        String members[] = { "23343", "34545", "34545" };
+        members = fetchMembers();
 
-        JLabel membersLabel = new JLabel("Member/Group ID");
+        JLabel membersLabel = new JLabel("Member ID/Group Name");
         membersLabel.setFont(new Font("Serif", Font.BOLD, 24));
         membersLabel.setBounds(0, 100, 600, 30);
         memberSelector = new JComboBox<String>(members);
@@ -81,7 +90,7 @@ public class IssueLoan extends CloseableFrame {
         amountField.setFont(new Font("Serif", Font.PLAIN, 18));
         amountField.setBounds(0, 270, 500, 50);
 
-        int years[] = IntStream.rangeClosed(1, maxPeriod).toArray();
+        years = IntStream.rangeClosed(1, maxPeriod).toArray();
         String strYears[] = Arrays.stream(years)
                 .mapToObj(String::valueOf)
                 .toArray(String[]::new);
@@ -100,21 +109,172 @@ public class IssueLoan extends CloseableFrame {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                close();
+                submit();
             }
         });
-        contributionPanel.add(title);
-        contributionPanel.add(membersLabel);
-        contributionPanel.add(memberSelector);
-        contributionPanel.add(amountLabel);
-        contributionPanel.add(amountField);
-        contributionPanel.add(periodLabel);
-        contributionPanel.add(periodSelector);
-        contributionPanel.add(confirmButton);
+        error = new JLabel("");
+        error.setFont(new Font("Serif", Font.PLAIN, 21));
+        error.setForeground(Color.red);
+        error.setBounds(0, 540, 500, 20);
+        error.setHorizontalAlignment(SwingConstants.CENTER);
 
-        panel.setBorder(new EmptyBorder(75, 0, 75, 0));
-        panel.add(contributionPanel);
+        issueLoanPanel.add(title);
+        issueLoanPanel.add(membersLabel);
+        issueLoanPanel.add(memberSelector);
+        issueLoanPanel.add(amountLabel);
+        issueLoanPanel.add(amountField);
+        issueLoanPanel.add(periodLabel);
+        issueLoanPanel.add(periodSelector);
+        issueLoanPanel.add(confirmButton);
+        issueLoanPanel.add(error);
+
+        panel.setBorder(new EmptyBorder(50, 0, 50, 0));
+        panel.add(issueLoanPanel);
 
         this.add(panel);
+    }
+
+    private String[] fetchMembers() {
+        String members[] = {};
+        String sql = "select national_id,group_name from members";
+        try {
+            PreparedStatement statement = connection.prepareStatement(sql);
+            ResultSet result = statement.executeQuery();
+            while (result.next()) {
+                List<String> idList = new ArrayList<String>(
+                        Arrays.asList(members));
+                idList.add(result.getString("national_id"));
+                members = idList.toArray(members);
+                //
+                List<String> groupList = new ArrayList<String>(
+                        Arrays.asList(groups));
+                groupList.add(result.getString("group_name"));
+                groups = groupList.toArray(groups);
+                //
+                String group = result.getString("group_name");
+                if (group != null && !Arrays.asList(members).contains(group)) {
+                    // Add groups to the member list
+                    idList = new ArrayList<String>(
+                            Arrays.asList(members));
+                    idList.add(group);
+                    members = idList.toArray(members);
+                    // Add null to groups list so that
+                    // members and groups have same length
+                    groupList = new ArrayList<String>(
+                            Arrays.asList(groups));
+                    groupList.add(null);
+                    groups = groupList.toArray(groups);
+                }
+            }
+        } catch (SQLException e1) {
+            e1.printStackTrace();
+        }
+        return members;
+    }
+
+    private void submit() {
+
+        try {
+            int index = memberSelector.getSelectedIndex();
+            int amount = Integer.parseInt(amountField.getText());
+
+            Boolean isInGroup = false;
+            Boolean group = Arrays.asList(groups).contains(members[index]);
+            if (!group) {
+                isInGroup = groups[index] != null;
+            }
+            int period = years[periodSelector.getSelectedIndex()];
+
+            int maxPeriod;
+            double interest;
+            int maxRatio;
+
+            if (group) {
+                maxPeriod = 5;
+                interest = 0.8;
+                maxRatio = 3;
+            } else if (isInGroup) {
+                maxPeriod = 4;
+                interest = 1;
+                maxRatio = 4;
+            } else {
+                maxPeriod = 3;
+                interest = 1.2;
+                maxRatio = 3;
+            }
+
+            if (period > maxPeriod) {
+                error.setText("Maximum repayment period is " + maxPeriod + " years");
+                return;
+            }
+
+            PreparedStatement contributionStatement = connection
+                    .prepareStatement("SELECT SUM(amount) AS sum_amount FROM contributions WHERE "
+                            + (group ? "group_name=?" : "member_id=?"));
+            contributionStatement.setString(1, members[index]);
+            ResultSet result = contributionStatement.executeQuery();
+            int contribution = 0;
+            if (result.next()) {
+                contribution = result.getInt("sum_amount");
+            }
+
+            int maxLoan = contribution * maxRatio;
+            if (maxLoan < amount) {
+                error.setText("Your maximum loan is " + String.valueOf(maxLoan));
+                return;
+            }
+
+            String sql = "insert into loans(member_id,group_name,amount,period) values (?,?,?,?)";
+
+            PreparedStatement statement = connection.prepareStatement(sql);
+            if (group) {
+                statement.setNull(1, 0);
+                statement.setString(2, members[index]);
+            } else {
+                statement.setInt(1, Integer.parseInt(members[index]));
+                statement.setNull(2, 0);
+            }
+            statement.setInt(3, amount);
+            statement.setInt(4, period);
+            statement.executeUpdate();
+
+            PreparedStatement idStatement = connection
+                    .prepareStatement("SELECT id FROM loans WHERE id= LAST_INSERT_ID()");
+            ResultSet idResult = idStatement.executeQuery();
+            idResult.next();
+
+            int months = period * 12;
+            int loan_id = idResult.getInt("id");
+            int installment = amount / months;
+            Double interestPaid = installment * interest / 100;
+            LocalDate date = LocalDate.now();
+            String due_next = "";
+            for (int i = 1; i <= months; i++) {
+                LocalDate initial = date.plusMonths(i);
+                // End of the month
+                LocalDate dueDate = initial.withDayOfMonth(initial.getMonth().length(initial.isLeapYear()));
+                if (i == 1)
+                    due_next = dueDate.toString();
+                PreparedStatement paymentStatement = connection
+                        .prepareStatement(
+                                "INSERT INTO payments (loan_id, installment, amount, interest, due) values (?,?,?,?,?);");
+                paymentStatement.setInt(1, loan_id);
+                paymentStatement.setInt(2, i);
+                paymentStatement.setInt(3, installment);
+                paymentStatement.setInt(4, interestPaid.intValue());
+                paymentStatement.setString(5, dueDate.toString());
+                paymentStatement.executeUpdate();
+            }
+
+            new LoanDetails(String.valueOf(loan_id), due_next, String.valueOf(installment)).setVisible(true);
+            this.dispose();
+        } catch (java.lang.NumberFormatException e) {
+            error.setText("Please Enter a valid amount");
+            return;
+        } catch (SQLException e1) {
+            e1.printStackTrace();
+            error.setText("Error Processing your loan");
+            return;
+        }
     }
 }

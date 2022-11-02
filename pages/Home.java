@@ -38,9 +38,21 @@ public class Home extends Frame {
         titleLabel.setFont(new Font("Serif", Font.BOLD, 36));
         titleLabel.setHorizontalAlignment(JLabel.CENTER);
         titleLabel.setBounds(0, 0, 500, 50);
-        // Button
+
+        // Buttons
+        JButton registerButton = new Button("Register Member");
+        registerButton.setBounds(0, 100, 500, 60);
+        registerButton.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent arg0) {
+                register();
+            }
+
+        });
+
         JButton contributionButton = new Button("Make Contribution");
-        contributionButton.setBounds(0, 100, 500, 60);
+        contributionButton.setBounds(0, 190, 500, 60);
         contributionButton.addActionListener(new ActionListener() {
 
             @Override
@@ -51,7 +63,7 @@ public class Home extends Frame {
         });
 
         JButton issueLoanButton = new Button("Issue Loan");
-        issueLoanButton.setBounds(0, 200, 500, 60);
+        issueLoanButton.setBounds(0, 280, 500, 60);
         issueLoanButton.addActionListener(new ActionListener() {
 
             @Override
@@ -62,7 +74,7 @@ public class Home extends Frame {
         });
 
         JButton payLoanButton = new Button("Loan Repayment");
-        payLoanButton.setBounds(0, 300, 500, 60);
+        payLoanButton.setBounds(0, 370, 500, 60);
         payLoanButton.addActionListener(new ActionListener() {
 
             @Override
@@ -73,7 +85,7 @@ public class Home extends Frame {
         });
 
         JButton reportsButton = new Button("View Reports");
-        reportsButton.setBounds(0, 400, 500, 60);
+        reportsButton.setBounds(0, 460, 500, 60);
         reportsButton.addActionListener(new ActionListener() {
 
             @Override
@@ -84,6 +96,7 @@ public class Home extends Frame {
         });
 
         homePanel.add(titleLabel);
+        homePanel.add(registerButton);
         homePanel.add(contributionButton);
         homePanel.add(issueLoanButton);
         homePanel.add(payLoanButton);
@@ -93,6 +106,12 @@ public class Home extends Frame {
         panel.add(homePanel);
 
         this.add(panel);
+    }
+
+    private void register() {
+        JFrame frame = new Register(this);
+        frame.setVisible(true);
+        this.dispose();
     }
 
     private void contribution() {

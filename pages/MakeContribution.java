@@ -1,6 +1,8 @@
 package pages;
 
 import java.sql.*;
+import java.util.*;
+import java.util.List;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -18,7 +20,12 @@ public class MakeContribution extends CloseableFrame {
     Connection connection;
 
     JComboBox<String> memberSelector;
+    String members[] = {};
+    String groups[] = {};
+
     JTextField amountField;
+
+    JLabel error;
 
     public MakeContribution(JFrame back) {
         super(back);
@@ -55,7 +62,7 @@ public class MakeContribution extends CloseableFrame {
         title.setBounds(0, 50, 500, 60);
         title.setHorizontalAlignment(SwingConstants.CENTER);
 
-        String members[] = { "23343", "34545", "34545" };
+        members = fetchMembers();
 
         JLabel membersLabel = new JLabel("Member National ID");
         membersLabel.setFont(new Font("Serif", Font.BOLD, 24));
@@ -83,19 +90,86 @@ public class MakeContribution extends CloseableFrame {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                close();
+                confirm();
             }
         });
+        error = new JLabel("");
+        error.setFont(new Font("Serif", Font.PLAIN, 21));
+        error.setForeground(Color.red);
+        error.setBounds(0, 510, 500, 20);
+        error.setHorizontalAlignment(SwingConstants.CENTER);
+
         contributionPanel.add(title);
         contributionPanel.add(membersLabel);
         contributionPanel.add(memberSelector);
         contributionPanel.add(amountLabel);
         contributionPanel.add(amountField);
         contributionPanel.add(confirmButton);
+        contributionPanel.add(error);
 
         panel.setBorder(new EmptyBorder(75, 0, 75, 0));
         panel.add(contributionPanel);
 
         this.add(panel);
+    }
+
+    private String[] fetchMembers() {
+        String members[] = {};
+        String sql = "select national_id,group_name from members";
+        try {
+            PreparedStatement statement = connection.prepareStatement(sql);
+            ResultSet result = statement.executeQuery();
+            while (result.next()) {
+                List<String> idList = new ArrayList<String>(
+                        Arrays.asList(members));
+                idList.add(result.getString("national_id"));
+                members = idList.toArray(members);
+                //
+                List<String> groupList = new ArrayList<String>(
+                        Arrays.asList(groups));
+                groupList.add(result.getString("group_name"));
+                groups = groupList.toArray(groups);
+            }
+        } catch (SQLException e1) {
+            e1.printStackTrace();
+        }
+        return members;
+    }
+
+    private void confirm() {
+
+        String memberSql = "insert into contributions(member_id, amount) values (?,?)";
+        String groupSql = "insert into contributions(group_name, amount) values (?,?)";
+        try {
+            int index = memberSelector.getSelectedIndex();
+            int amount = Integer.parseInt(amountField.getText());
+            if (amount < 1000) {
+                error.setText("Minimum amount is 1000");
+                return;
+            }
+            Boolean group = groups[index] != null;
+            PreparedStatement statement = connection.prepareStatement(memberSql);
+            statement.setString(1, members[index]);
+            if (group) {
+                statement.setInt(2, amount - 200);
+            } else {
+                statement.setInt(2, amount);
+            }
+            statement.executeUpdate();
+            if (group) {
+                PreparedStatement grpStatement = connection.prepareStatement(groupSql);
+                grpStatement.setString(1, groups[index]);
+                grpStatement.setInt(2, 200);
+                grpStatement.executeUpdate();
+            }
+        } catch (java.lang.NumberFormatException e) {
+            error.setText("Please Enter a valid amount");
+            return;
+        }
+
+        catch (SQLException e1) {
+            e1.printStackTrace();
+        }
+        close();
     }
 }

@@ -1,6 +1,10 @@
 package pages;
 
 import java.sql.*;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -17,7 +21,13 @@ public class LoanRepayment extends CloseableFrame {
 
     Connection connection;
 
-    JComboBox<String> memberSelector;
+    JComboBox<String> loanSelector;
+    String[] loans;
+
+    int installment;
+    int amount;
+    int penalty = 0;
+
     JLabel amountLabel;
     JLabel installmentLabel;
     JLabel penaltyLabel;
@@ -57,18 +67,25 @@ public class LoanRepayment extends CloseableFrame {
         title.setBounds(0, 50, 500, 60);
         title.setHorizontalAlignment(SwingConstants.CENTER);
 
-        String members[] = { "23343", "34545", "34545" };
+        loans = fetchLoans();
 
-        JLabel membersLabel = new JLabel("Member/Group ID");
-        membersLabel.setFont(new Font("Serif", Font.BOLD, 24));
-        membersLabel.setBounds(0, 150, 600, 30);
-        memberSelector = new JComboBox<String>(members);
-        memberSelector.setFont(new Font("Serif", Font.PLAIN, 18));
-        memberSelector.setBackground(Color.white);
-        memberSelector.setBounds(0, 200, 500, 50);
+        JLabel loansLabel = new JLabel("Loan ID");
+        loansLabel.setFont(new Font("Serif", Font.BOLD, 24));
+        loansLabel.setBounds(0, 150, 600, 30);
+        loanSelector = new JComboBox<String>(loans);
+        loanSelector.setFont(new Font("Serif", Font.PLAIN, 18));
+        loanSelector.setBackground(Color.white);
+        loanSelector.setBounds(0, 200, 500, 50);
+        loanSelector.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent arg0) {
+                loanDetails();
+            }
+        });
 
         // installment
-        installmentLabel = new JLabel("Installment: Due on: ");
+        installmentLabel = new JLabel("Installment:  Due on: ");
         installmentLabel.setFont(new Font("Serif", Font.PLAIN, 24));
         installmentLabel.setBounds(0, 270, 600, 30);
 
@@ -89,12 +106,13 @@ public class LoanRepayment extends CloseableFrame {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                close();
+                confirm();
             }
         });
+
         repaymentPanel.add(title);
-        repaymentPanel.add(membersLabel);
-        repaymentPanel.add(memberSelector);
+        repaymentPanel.add(loansLabel);
+        repaymentPanel.add(loanSelector);
         repaymentPanel.add(installmentLabel);
         repaymentPanel.add(amountLabel);
         repaymentPanel.add(penaltyLabel);
@@ -104,5 +122,73 @@ public class LoanRepayment extends CloseableFrame {
         panel.add(repaymentPanel);
 
         this.add(panel);
+        loanDetails();
+    }
+
+    private String[] fetchLoans() {
+        String loans[] = {};
+        String sql = "select id from loans";
+        try {
+            PreparedStatement statement = connection.prepareStatement(sql);
+            ResultSet result = statement.executeQuery();
+            while (result.next()) {
+                List<String> idList = new ArrayList<String>(
+                        Arrays.asList(loans));
+                idList.add(String.valueOf(result.getInt("id")));
+                loans = idList.toArray(loans);
+            }
+        } catch (SQLException e1) {
+            e1.printStackTrace();
+        }
+        return loans;
+    }
+
+    private void loanDetails() {
+        String sql = "SELECT * FROM payments WHERE loan_id=? AND NOT cleared ORDER BY due ASC LIMIT 1";
+        try {
+            int loan_id = Integer.parseInt(loans[loanSelector.getSelectedIndex()]);
+            PreparedStatement statement = connection.prepareStatement(sql);
+            statement.setInt(1, loan_id);
+            ResultSet result = statement.executeQuery();
+            if (result.next()) {
+                installment = result.getInt("installment");
+                amount = result.getInt("amount");
+                int interest = result.getInt("interest");
+                String due = result.getString("due");
+                installmentLabel.setText("<html>Installment: <b>" + String.valueOf(installment) + "</b>  Due on: <b>"
+                        + due + "</b></html>");
+                amountLabel.setText("<html>Amount: <b>" + String.valueOf(amount + interest) + "</b></html>");
+                if (LocalDate.now().isAfter(LocalDate.parse(due))) {
+                    Double pen = amount * 0.1;
+                    penalty = pen.intValue();
+                    penaltyLabel.setText("<html>Penalty: <b>" + String.valueOf(penalty) + "</b></html>");
+                }
+
+            }
+        } catch (SQLException e1) {
+            e1.printStackTrace();
+        }
+    }
+
+    private void confirm() {
+        String sql = "UPDATE payments SET penalty=?, cleared=? WHERE loan_id=? AND installment=?";
+        try {
+            int loan_id = Integer.parseInt(loans[loanSelector.getSelectedIndex()]);
+            PreparedStatement statement = connection.prepareStatement(sql);
+            if (penalty > 0) {
+                statement.setInt(1, penalty);
+            } else {
+                statement.setNull(1, 0);
+            }
+            statement.setBoolean(2, true);
+            statement.setInt(3, loan_id);
+            statement.setInt(4, installment);
+            statement.executeUpdate();
+
+        } catch (SQLException e1) {
+            e1.printStackTrace();
+            return;
+        }
+        close();
     }
 }
