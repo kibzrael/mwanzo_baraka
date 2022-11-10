@@ -58,7 +58,7 @@ public class Reports extends CloseableFrame {
 
         // Fetch income and calculate the balance for organization
         int income = getIncome();
-        double orgIncome = income * 0.4;
+        long orgIncome = Math.round(income * 0.4);
 
         totalIncomeLabel = new JLabel("<html>Total Income: <b>sh. " + String.valueOf(income) + "</b></html>");
         totalIncomeLabel.setFont(new Font("Serif", Font.PLAIN, 24));
