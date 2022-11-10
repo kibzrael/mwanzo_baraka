@@ -6,6 +6,7 @@ import java.awt.event.ActionListener;
 import javax.swing.*;
 
 public class CloseableFrame extends Frame {
+    // A frame that implements the back button
 
     JFrame previousFrame;
 
@@ -28,6 +29,7 @@ public class CloseableFrame extends Frame {
         this.add(backButton);
     }
 
+    // A function to be called by subclasses
     protected void close() {
         previousFrame.setVisible(true);
         this.dispose();

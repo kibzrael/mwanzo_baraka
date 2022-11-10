@@ -38,6 +38,7 @@ public class LoanRepayment extends CloseableFrame {
     }
 
     private void setup() {
+        // Mysql connection
         String dbUrl = "jdbc:mysql://localhost:3306/mwanzo_baraka";
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
@@ -61,12 +62,13 @@ public class LoanRepayment extends CloseableFrame {
         JPanel repaymentPanel = new Panel();
         repaymentPanel.setLayout(null);
 
-        // Members
+        // Title
         JLabel title = new JLabel("Loan Repayment");
         title.setFont(new Font("Serif", Font.BOLD, 36));
         title.setBounds(0, 50, 500, 60);
         title.setHorizontalAlignment(SwingConstants.CENTER);
 
+        // Select loan id to repay
         loans = fetchLoans();
 
         JLabel loansLabel = new JLabel("Loan ID");
@@ -129,9 +131,11 @@ public class LoanRepayment extends CloseableFrame {
         String loans[] = {};
         String sql = "select id from loans";
         try {
+            // Fetch loans from database
             PreparedStatement statement = connection.prepareStatement(sql);
             ResultSet result = statement.executeQuery();
             while (result.next()) {
+                // Add loan to array
                 List<String> idList = new ArrayList<String>(
                         Arrays.asList(loans));
                 idList.add(String.valueOf(result.getInt("id")));
@@ -146,11 +150,13 @@ public class LoanRepayment extends CloseableFrame {
     private void loanDetails() {
         String sql = "SELECT * FROM payments WHERE loan_id=? AND NOT cleared ORDER BY due ASC LIMIT 1";
         try {
+            // Fetch the repayment details of selected loan
             int loan_id = Integer.parseInt(loans[loanSelector.getSelectedIndex()]);
             PreparedStatement statement = connection.prepareStatement(sql);
             statement.setInt(1, loan_id);
             ResultSet result = statement.executeQuery();
             if (result.next()) {
+                // Display details to user
                 installment = result.getInt("installment");
                 amount = result.getInt("amount");
                 int interest = result.getInt("interest");
@@ -159,6 +165,7 @@ public class LoanRepayment extends CloseableFrame {
                         + due + "</b></html>");
                 amountLabel.setText("<html>Amount: <b>" + String.valueOf(amount + interest) + "</b></html>");
                 if (LocalDate.now().isAfter(LocalDate.parse(due))) {
+                    // Charge a penalty if today is after due date
                     Double pen = amount * 0.1;
                     penalty = pen.intValue();
                     penaltyLabel.setText("<html>Penalty: <b>" + String.valueOf(penalty) + "</b></html>");
@@ -173,6 +180,7 @@ public class LoanRepayment extends CloseableFrame {
     private void confirm() {
         String sql = "UPDATE payments SET penalty=?, cleared=? WHERE loan_id=? AND installment=?";
         try {
+            // Update the installment to indicate that it is paid.
             int loan_id = Integer.parseInt(loans[loanSelector.getSelectedIndex()]);
             PreparedStatement statement = connection.prepareStatement(sql);
             if (penalty > 0) {

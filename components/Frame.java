@@ -5,6 +5,7 @@ import javax.swing.JFrame;
 import java.awt.*;
 
 public class Frame extends JFrame {
+    // A frame with the common attributes
     public Frame() {
         this.setTitle("Mwanzo Baraka");
         this.setSize(1250, 750);

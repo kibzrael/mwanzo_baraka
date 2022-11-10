@@ -36,6 +36,7 @@ public class Register extends CloseableFrame {
     }
 
     private void setup() {
+        // Mysql connection
         String dbUrl = "jdbc:mysql://localhost:3306/mwanzo_baraka";
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
@@ -59,6 +60,7 @@ public class Register extends CloseableFrame {
         // Form
         JPanel registerPanel = new Panel();
         registerPanel.setLayout(null);
+
         // Membership
         JLabel membershipLabel = new JLabel("Membership");
         membershipLabel.setFont(new Font("Serif", Font.BOLD, 24));
@@ -83,6 +85,7 @@ public class Register extends CloseableFrame {
                 @Override
                 public void actionPerformed(ActionEvent arg0) {
                     if (button.isSelected()) {
+                        // Handle registration amount
                         type = button.getText();
                         if (type == "Group") {
                             amount = "5000";
@@ -128,6 +131,7 @@ public class Register extends CloseableFrame {
 
             }
         });
+        // Display in case of an error
         error = new JLabel("");
         error.setFont(new Font("Serif", Font.PLAIN, 21));
         error.setForeground(Color.red);
@@ -156,6 +160,7 @@ public class Register extends CloseableFrame {
             return;
         }
         if (type == "Group") {
+            // Register the group
             String sql = "INSERT INTO member_groups (name, reg_fee) VALUES (?, ?)";
             try {
                 PreparedStatement statement = connection.prepareStatement(sql);
@@ -172,7 +177,6 @@ public class Register extends CloseableFrame {
             } catch (java.lang.NullPointerException e) {
             }
         }
-        // TODO: Ensure group name is unique
 
         JFrame details = new Details(type == "Group", groupField.getText());
         details.setVisible(true);

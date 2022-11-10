@@ -6,6 +6,7 @@ import java.awt.Font;
 import javax.swing.JButton;
 
 public class Button extends JButton {
+    // A button with the common attributes
     public Button(String text) {
         this.setBackground(new Color(232, 113, 33));
         this.setBorder(null);

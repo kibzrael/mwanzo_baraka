@@ -36,6 +36,7 @@ public class Details extends Frame {
     }
 
     private void setup() {
+        // Mysql connection
         String dbUrl = "jdbc:mysql://localhost:3306/mwanzo_baraka";
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
@@ -79,6 +80,7 @@ public class Details extends Frame {
                 BorderFactory.createEmptyBorder(5, 15, 5, 15)));
         memberField.setFont(new Font("Serif", Font.PLAIN, 18));
         memberField.setBounds(0, 170, 500, 50);
+
         // PhoneNumber
         JLabel phoneLabel = new JLabel("Phone Number");
         phoneLabel.setFont(new Font("Serif", Font.BOLD, 24));
@@ -89,6 +91,7 @@ public class Details extends Frame {
                 BorderFactory.createEmptyBorder(5, 15, 5, 15)));
         phoneField.setFont(new Font("Serif", Font.PLAIN, 18));
         phoneField.setBounds(0, 290, 500, 50);
+
         // Gender
         JLabel genderLabel = new JLabel("Gender");
         genderLabel.setFont(new Font("Serif", Font.BOLD, 24));
@@ -106,6 +109,7 @@ public class Details extends Frame {
         ButtonGroup buttonGroup = new ButtonGroup();
         buttonGroup.add(male);
         buttonGroup.add(female);
+        // Handler function for when gender is changed
         for (Enumeration<AbstractButton> buttons = buttonGroup.getElements(); buttons.hasMoreElements();) {
             AbstractButton button = buttons.nextElement();
             button.addActionListener(new ActionListener() {
@@ -154,6 +158,8 @@ public class Details extends Frame {
             }
 
         });
+
+        // Display in case of an error
         error = new JLabel("");
         error.setFont(new Font("Serif", Font.PLAIN, 21));
         error.setForeground(Color.red);
@@ -188,6 +194,7 @@ public class Details extends Frame {
         }
         String sql = "insert into members(national_id, name, phone, gender, reg_fee, group_name) values (?,?,?,?,?,?)";
         try {
+            // Register member in database
             PreparedStatement statement = connection.prepareStatement(sql);
             statement.setString(1, idField.getText());
             statement.setString(2, memberField.getText());

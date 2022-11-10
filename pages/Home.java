@@ -29,11 +29,10 @@ public class Home extends Frame {
         logo.setHorizontalAlignment(JLabel.CENTER);
         panel.add(logo);
 
-        // Form
         JPanel homePanel = new Panel();
         homePanel.setLayout(null);
 
-        // Members
+        // Title
         JLabel titleLabel = new JLabel("Home");
         titleLabel.setFont(new Font("Serif", Font.BOLD, 36));
         titleLabel.setHorizontalAlignment(JLabel.CENTER);
@@ -107,6 +106,8 @@ public class Home extends Frame {
 
         this.add(panel);
     }
+
+    // Functions to open pages
 
     private void register() {
         JFrame frame = new Register(this);

@@ -33,6 +33,7 @@ public class MakeContribution extends CloseableFrame {
     }
 
     private void setup() {
+        // Mysql connection
         String dbUrl = "jdbc:mysql://localhost:3306/mwanzo_baraka";
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
@@ -56,12 +57,13 @@ public class MakeContribution extends CloseableFrame {
         JPanel contributionPanel = new Panel();
         contributionPanel.setLayout(null);
 
-        // Members
+        // Title
         JLabel title = new JLabel("Contributions");
         title.setFont(new Font("Serif", Font.BOLD, 36));
         title.setBounds(0, 50, 500, 60);
         title.setHorizontalAlignment(SwingConstants.CENTER);
 
+        // Select member
         members = fetchMembers();
 
         JLabel membersLabel = new JLabel("Member National ID");
@@ -93,6 +95,8 @@ public class MakeContribution extends CloseableFrame {
                 confirm();
             }
         });
+
+        // Display in case of error
         error = new JLabel("");
         error.setFont(new Font("Serif", Font.PLAIN, 21));
         error.setForeground(Color.red);
@@ -117,9 +121,11 @@ public class MakeContribution extends CloseableFrame {
         String members[] = {};
         String sql = "select national_id,group_name from members";
         try {
+            // Fetch members and their groups
             PreparedStatement statement = connection.prepareStatement(sql);
             ResultSet result = statement.executeQuery();
             while (result.next()) {
+                // Add member and group to array
                 List<String> idList = new ArrayList<String>(
                         Arrays.asList(members));
                 idList.add(result.getString("national_id"));
@@ -148,6 +154,8 @@ public class MakeContribution extends CloseableFrame {
                 return;
             }
             Boolean group = groups[index] != null;
+
+            // Register member contribution to database
             PreparedStatement statement = connection.prepareStatement(memberSql);
             statement.setString(1, members[index]);
             if (group) {
@@ -157,6 +165,7 @@ public class MakeContribution extends CloseableFrame {
             }
             statement.executeUpdate();
             if (group) {
+                // Register group contribution to database
                 PreparedStatement grpStatement = connection.prepareStatement(groupSql);
                 grpStatement.setString(1, groups[index]);
                 grpStatement.setInt(2, 200);

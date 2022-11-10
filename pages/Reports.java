@@ -26,6 +26,7 @@ public class Reports extends CloseableFrame {
     }
 
     private void setup() {
+        // Mysql connection
         String dbUrl = "jdbc:mysql://localhost:3306/mwanzo_baraka";
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
@@ -49,14 +50,15 @@ public class Reports extends CloseableFrame {
         JPanel contributionPanel = new Panel();
         contributionPanel.setLayout(null);
 
-        //
+        // Title
         JLabel title = new JLabel("Reports");
         title.setFont(new Font("Serif", Font.BOLD, 36));
         title.setBounds(0, 50, 500, 60);
         title.setHorizontalAlignment(SwingConstants.CENTER);
 
+        // Fetch income and calculate the balance for organization
         int income = getIncome();
-        double orgIncome = income * 0.6;
+        double orgIncome = income * 0.4;
 
         totalIncomeLabel = new JLabel("<html>Total Income: <b>sh. " + String.valueOf(income) + "</b></html>");
         totalIncomeLabel.setFont(new Font("Serif", Font.PLAIN, 24));
@@ -81,6 +83,7 @@ public class Reports extends CloseableFrame {
         JButton dividendsButton = new Button("Dividends");
         dividendsButton.setBounds(250, 410, 225, 50);
 
+        // Add action listener to all buttons
         JButton buttons[] = { membersButton, groupsButton, contributionsButton, loansButton, repaymentsButton,
                 dividendsButton };
         for (JButton button : buttons) {
@@ -88,8 +91,8 @@ public class Reports extends CloseableFrame {
 
                 @Override
                 public void actionPerformed(ActionEvent arg0) {
-                    System.out.println(button.getText());
-                    String sql;
+                    String sql = null;
+                    // Assign sql statements to each button
                     switch (button.getText()) {
                         case "Members":
                             sql = "SELECT national_id,name,phone,gender,reg_fee FROM members;";
@@ -107,10 +110,15 @@ public class Reports extends CloseableFrame {
                             sql = "SELECT loan_id,installment,amount,interest,penalty,due FROM payments WHERE cleared";
                             break;
                         case "Dividends":
-                            sql = "";
+                            // Select member and calculate dividends to be paid to them
+                            sql = "SELECT member.id as member_id, member.grp as group_name, member.n as contribution, round((member.n / total.n * revenue.dividend), 2)  as dividend from (select member_id as id, group_name as grp, sum(amount) as n from contributions group by member_id, group_name)member join (select sum(amount) as n from contributions)total join(SELECT (SUM(interest)+SUM(penalty))*0.6 AS dividend FROM payments WHERE cleared)revenue;";
                             break;
                         default:
                             break;
+                    }
+
+                    if (sql != null) {
+                        display(sql, button.getText());
                     }
                 }
             });
@@ -133,8 +141,9 @@ public class Reports extends CloseableFrame {
     }
 
     private int getIncome() {
-        String sql = "SELECT (SUM(interest)+SUM(penalty)) AS income FROM mwanzo_baraka.payments WHERE cleared";
+        String sql = "SELECT (SUM(interest)+SUM(penalty)) AS income FROM payments WHERE cleared";
         try {
+            // Get totabl interest and penalties
             PreparedStatement statement = connection.prepareStatement(sql);
             ResultSet result = statement.executeQuery();
             if (result.next()) {
@@ -144,5 +153,11 @@ public class Reports extends CloseableFrame {
             e1.printStackTrace();
         }
         return 0;
+    }
+
+    private void display(String sql, String title) {
+        // Display the sql results in a JTable
+        new ReportsTable(this, sql, title).setVisible(true);
+        this.setVisible(false);
     }
 }

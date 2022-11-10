@@ -40,6 +40,7 @@ public class IssueLoan extends CloseableFrame {
     }
 
     private void setup() {
+        // Mysql Connection
         String dbUrl = "jdbc:mysql://localhost:3306/mwanzo_baraka";
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
@@ -63,12 +64,13 @@ public class IssueLoan extends CloseableFrame {
         JPanel issueLoanPanel = new Panel();
         issueLoanPanel.setLayout(null);
 
-        // Members
+        // Title
         JLabel title = new JLabel("Loan");
         title.setFont(new Font("Serif", Font.BOLD, 36));
         title.setBounds(0, 0, 500, 60);
         title.setHorizontalAlignment(SwingConstants.CENTER);
 
+        // Select member/group
         members = fetchMembers();
 
         JLabel membersLabel = new JLabel("Member ID/Group Name");
@@ -90,6 +92,7 @@ public class IssueLoan extends CloseableFrame {
         amountField.setFont(new Font("Serif", Font.PLAIN, 18));
         amountField.setBounds(0, 270, 500, 50);
 
+        // Select repayment period
         years = IntStream.rangeClosed(1, maxPeriod).toArray();
         String strYears[] = Arrays.stream(years)
                 .mapToObj(String::valueOf)
@@ -112,6 +115,8 @@ public class IssueLoan extends CloseableFrame {
                 submit();
             }
         });
+
+        // Display in case of error
         error = new JLabel("");
         error.setFont(new Font("Serif", Font.PLAIN, 21));
         error.setForeground(Color.red);
@@ -138,9 +143,11 @@ public class IssueLoan extends CloseableFrame {
         String members[] = {};
         String sql = "select national_id,group_name from members";
         try {
+            // Fetch members from database
             PreparedStatement statement = connection.prepareStatement(sql);
             ResultSet result = statement.executeQuery();
             while (result.next()) {
+                // Add member and group to array
                 List<String> idList = new ArrayList<String>(
                         Arrays.asList(members));
                 idList.add(result.getString("national_id"));
@@ -189,6 +196,7 @@ public class IssueLoan extends CloseableFrame {
             double interest;
             int maxRatio;
 
+            // Calculate period, max loan and interest
             if (group) {
                 maxPeriod = 5;
                 interest = 0.8;
@@ -208,6 +216,7 @@ public class IssueLoan extends CloseableFrame {
                 return;
             }
 
+            // Select total contribution by member/group
             PreparedStatement contributionStatement = connection
                     .prepareStatement("SELECT SUM(amount) AS sum_amount FROM contributions WHERE "
                             + (group ? "group_name=?" : "member_id=?"));
@@ -225,7 +234,7 @@ public class IssueLoan extends CloseableFrame {
             }
 
             String sql = "insert into loans(member_id,group_name,amount,period) values (?,?,?,?)";
-
+            // Register the loan to the database
             PreparedStatement statement = connection.prepareStatement(sql);
             if (group) {
                 statement.setNull(1, 0);
@@ -238,11 +247,13 @@ public class IssueLoan extends CloseableFrame {
             statement.setInt(4, period);
             statement.executeUpdate();
 
+            // Get the registered loan id
             PreparedStatement idStatement = connection
                     .prepareStatement("SELECT id FROM loans WHERE id= LAST_INSERT_ID()");
             ResultSet idResult = idStatement.executeQuery();
             idResult.next();
 
+            // Calculate installments to be paid
             int months = period * 12;
             int loan_id = idResult.getInt("id");
             int installment = amount / months;
@@ -255,6 +266,7 @@ public class IssueLoan extends CloseableFrame {
                 LocalDate dueDate = initial.withDayOfMonth(initial.getMonth().length(initial.isLeapYear()));
                 if (i == 1)
                     due_next = dueDate.toString();
+                // Register installments to the database
                 PreparedStatement paymentStatement = connection
                         .prepareStatement(
                                 "INSERT INTO payments (loan_id, installment, amount, interest, due) values (?,?,?,?,?);");
@@ -265,7 +277,7 @@ public class IssueLoan extends CloseableFrame {
                 paymentStatement.setString(5, dueDate.toString());
                 paymentStatement.executeUpdate();
             }
-
+            // Display the loan details, including the ID
             new LoanDetails(String.valueOf(loan_id), due_next, String.valueOf(installment)).setVisible(true);
             this.dispose();
         } catch (java.lang.NumberFormatException e) {
